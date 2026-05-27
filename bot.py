@@ -94,7 +94,7 @@ def search_jobs(query: str, retries: int = 3) -> list:
     params = {
         "query":          query,
         "num_pages":      "1",
-        "date_posted":    "today",
+        "date_posted":    "3days",
         "work_from_home": "true",
     }
 
