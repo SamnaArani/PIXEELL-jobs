@@ -59,7 +59,6 @@ BLACKLIST_KEYWORDS = [
     "usa only",
     "canada only",
     "uk only",
-    "agency",
     "staffing agency",
     "recruitment agency",
     "unpaid",
