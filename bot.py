@@ -37,24 +37,30 @@ MAX_JOBS_PER_RUN  = 15     # حداکثر آگهی ارسالی در هر اجر
 
 # ─── کلمات جستجو ──────────────────────────────────────────────────────────────
 SEARCH_QUERIES = [
-    "Junior SEO remote",
-    "Technical SEO remote",
-    "SEO Content Editor remote",
-    "SEO Python remote",
-    "WordPress SEO Specialist remote",
+    "UI UX Designer remote",
+    "Product Designer remote",
+    "WordPress Web Developer remote",
+    "Senior Web Designer remote",
+    "Web Design Freelance remote",
+    "WordPress Expert remote",
+    "User Interface Designer remote",
 ]
 
 # ─── کلمات ممنوعه (Blacklist) ──────────────────────────────────────────────────
 BLACKLIST_KEYWORDS = [
     "us residents only",
     "must reside in us",
-    "must be located in the us",
-    "must be based in",
-    "senior",
-    "director",
+    "usa only",
+    "canada only",
+    "uk only",
     "agency",
-    "full stack",
-    "fullstack",
+    "staffing agency",
+    "recruitment agency",
+    "unpaid",
+    "internship",
+    "volunteer",
+    "commission only",
+    "fast-paced",
 ]
 
 # ══════════════════════════════════════════════════════════════════════════════
