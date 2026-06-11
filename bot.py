@@ -39,24 +39,24 @@ MAX_JOBS_PER_RUN  = 15     # حداکثر آگهی ارسالی در هر اجر
 SEARCH_QUERIES = [
     "UI/UX Designer",
     "UI UX Designer remote",
+    "Project Manager remote",
     "Product Designer remote",
+    "Scrum Master remote",
     "WordPress Web Developer remote",
     "Senior Web Designer remote",
     "Web Design Freelance remote",
+    "Hire Project Manager",
     "WordPress Expert remote",
     "User Interface Designer remote",
     "Looking for WordPress expert",
     "Hire UI Designer",
     # Project Management keywords added below
-    "Project Manager remote",
     "Technical Project Manager remote",
-    "Scrum Master remote",
     "Agile Project Manager remote",
     "Junior Project Manager remote",
     "IT Project Coordinator remote",
     "Product Owner remote",
     "Project Management Officer remote",
-    "Hire Project Manager",
     "Looking for Scrum Master",
     
 ]
