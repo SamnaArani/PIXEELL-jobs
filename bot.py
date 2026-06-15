@@ -33,7 +33,7 @@ GSHEET_SHEET_NAME  = "Jobs"
 
 SEEN_JOBS_FILE    = Path("seen_jobs.txt")
 MAX_SEEN_JOBS     = 2000   # حداکثر تعداد ID ذخیره شده (جلوگیری از بزرگ شدن فایل)
-MAX_JOBS_PER_RUN  = 30     # حداکثر آگهی ارسالی در هر اجرا
+MAX_JOBS_PER_RUN  = 40     # حداکثر آگهی ارسالی در هر اجرا
 
 # ─── کلمات جستجو ──────────────────────────────────────────────────────────────
 SEARCH_QUERIES = [
@@ -376,7 +376,7 @@ def main():
         f"📊 {len(unique_jobs)} آگهی جدید | ⛔ {blacklisted} فیلتر شد\n"
         f"➖➖➖➖➖➖➖➖"
     )
-    time.sleep(1.2)
+    time.sleep(1.5)
 
     sent = 0
     for job in unique_jobs[:MAX_JOBS_PER_RUN]:
@@ -385,9 +385,10 @@ def main():
             if send_telegram(msg):
                 sent += 1
                 append_to_sheet(sheets_client, job)
-            time.sleep(0.8)   # جلوگیری از flood limit تلگرام
+            time.sleep(2.0)   # جلوگیری از flood limit تلگرام
         except Exception as e:
             log.error(f"Error sending job to Telegram: {e}")
+            time.sleep(2.0)   # حتی در خطا هم sleep کن
             continue
 
     save_seen_jobs(seen_jobs)
