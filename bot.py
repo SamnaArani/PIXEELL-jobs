@@ -44,9 +44,7 @@ SEARCH_QUERIES = [
     "WordPress Developer OR WordPress Designer remote",
     "Digital Project Manager OR Technical Project Manager remote",
     "(Product Manager OR Scrum Master) (digital OR SaaS OR software) remote",
-]
-    
-]
+]]
 
 # ─── کلمات ممنوعه (Blacklist) ──────────────────────────────────────────────────
 BLACKLIST_KEYWORDS = [
