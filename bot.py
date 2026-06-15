@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 RAPIDAPI_KEY       = os.environ["RAPIDAPI_KEY"]
 TELEGRAM_TOKEN     = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHAT_ID   = os.environ["TELEGRAM_CHAT_ID"]
+TELEGRAM_TOPIC_ID = os.environ.get("JOB_TOPIC_ID") # خواندن از Secret گیت‌هاب
 GSHEET_CREDENTIALS = os.environ.get("GSHEET_CREDENTIALS", "")   # JSON string
 GSHEET_ID          = os.environ.get("GSHEET_ID", "")
 GSHEET_SHEET_NAME  = "Jobs"
@@ -165,8 +166,11 @@ def is_blacklisted(job: dict) -> bool:
 # Telegram
 # ══════════════════════════════════════════════════════════════════════════════
 
-def send_telegram(text: str, reply_markup: str = None) -> bool:
-    """ارسال پیام به تلگرام همراه با پشتیبانی از دکمه‌های شیشه‌ای"""
+# اگر از Secrets گیت‌هاب استفاده می‌کنید، این خط را اضافه کنید:
+# JOB_TOPIC_ID = os.environ.get("JOB_TOPIC_ID")
+
+def send_telegram(text: str, reply_markup: str = None, thread_id: int = None) -> bool:
+    """ارسال پیام به تلگرام همراه با پشتیبانی از دکمه‌های شیشه‌ای و تاپیک‌های گروه"""
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     payload = {
         "chat_id":                  TELEGRAM_CHAT_ID,
@@ -174,8 +178,13 @@ def send_telegram(text: str, reply_markup: str = None) -> bool:
         "parse_mode":               "HTML",
         "disable_web_page_preview": True,
     }
+    
     if reply_markup:
         payload["reply_markup"] = reply_markup
+    
+    # اضافه کردن آیدی تاپیک (Thread ID) در صورت وجود
+    if thread_id:
+        payload["message_thread_id"] = thread_id
 
     try:
         resp = requests.post(url, json=payload, timeout=15)
@@ -204,7 +213,9 @@ def generate_hashtags(job_title: str) -> str:
     if "backend" in title_lower or "back" in title_lower:
         tags.append("#Backend")
     if "project manager" in title_lower or "product manager" in title_lower:
-        tags.append("#Project_Manager")
+        tags.append("#Project_Management")
+    if "product" in title_lower:
+        tags.append("#Product_Design")
     if "scrum" in title_lower:
         tags.append("#Scrum_Master")
         
@@ -213,11 +224,9 @@ def generate_hashtags(job_title: str) -> str:
 
 def extract_salary(job: dict) -> str:
     """استخراج حقوق از فیلدهای مختلف API"""
-    # اول فیلد آماده رو چک میکنیم
     if job.get("job_salary_string"):
         return job["job_salary_string"]
 
-    # بعد min/max رو بررسی میکنیم
     min_s  = job.get("job_min_salary")
     max_s  = job.get("job_max_salary")
     period = (job.get("job_salary_period") or "").lower()
@@ -249,13 +258,12 @@ def format_job(job: dict) -> str:
     ]
 
     if salary:
-        lines.append(f"💰 <b>{html.escape(salary)}</b>")   # برجسته و مجزا
+        lines.append(f"💰 <b>{html.escape(salary)}</b>")
 
     if source:
         lines.append(f"🌐 {source}")
 
     return "\n".join(lines)
-
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Google Sheets (اختیاری)
@@ -338,6 +346,9 @@ def main():
     already_seen  = 0
     errors        = 0
 
+    # استخراج و آماده‌سازی ID تاپیک
+    thread_id = int(TELEGRAM_TOPIC_ID) if TELEGRAM_TOPIC_ID and TELEGRAM_TOPIC_ID.isdigit() else None
+
     # کنترل اجرای اسکریپت بر اساس وضعیت تست یا زنده بودن
     if TEST_MODE:
         log.info("🚀 Running in TEST MODE - Generating Fake/Mock data to save queries...")
@@ -419,7 +430,8 @@ def main():
             f"📅 {now}\n\n"
             f"✅ آگهی جدیدی امروز پیدا نشد.\n"
             f"⛔ فیلتر شده: {blacklisted} | 🔁 تکراری: {already_seen}\n\n"
-            f"📢 کانال رسمی: {CHANNEL_USERNAME}"
+            f"📢 کانال رسمی: {CHANNEL_USERNAME}",
+            thread_id=thread_id
         )
         if not TEST_MODE:
             save_seen_jobs(seen_jobs)
@@ -431,7 +443,8 @@ def main():
         f"📅 {now}\n"
         f"📊 {len(unique_jobs)} آگهی جدید | ⛔ {blacklisted} فیلتر شد\n"
         f"➖➖➖➖➖➖➖➖\n"
-        f"📢 کانال رسمی: {CHANNEL_USERNAME}"
+        f"📢 کانال رسمی: {CHANNEL_USERNAME}",
+        thread_id=thread_id
     )
     time.sleep(1.5)
 
@@ -462,7 +475,7 @@ def main():
             }
             reply_markup = json.dumps(keyboard)
 
-            if send_telegram(msg, reply_markup=reply_markup):
+            if send_telegram(msg, reply_markup=reply_markup, thread_id=thread_id):
                 sent += 1
                 if not TEST_MODE:
                     append_to_sheet(sheets_client, job)
