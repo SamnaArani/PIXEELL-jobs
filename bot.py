@@ -427,7 +427,7 @@ def main():
 
     # پیام هدر
     send_telegram(
-        f"🔍 <b>آگهی‌های شغلی جدید</b>\n"
+        f"🔍 <b>🔍 فرصت‌های شغلی بین‌المللی امروز</b>\n"
         f"📅 {now}\n"
         f"📊 {len(unique_jobs)} آگهی جدید | ⛔ {blacklisted} فیلتر شد\n"
         f"➖➖➖➖➖➖➖➖\n"
