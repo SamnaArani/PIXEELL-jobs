@@ -163,6 +163,23 @@ def is_blacklisted(job: dict) -> bool:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# تشخیص نوع همکاری
+# ══════════════════════════════════════════════════════════════════════════════
+
+def get_job_type(job: dict) -> str:
+    """تشخیص پروژه‌ای یا استخدامی بودن بر اساس عنوان و توضیحات شغل"""
+    title = (job.get("job_title") or "").lower()
+    description = (job.get("job_description") or "").lower()
+    combined = f"{title} {description}"
+    
+    project_keywords = ["freelance", "contract", "hourly", "project-based", "part-time", "فریلنس", "پروژه"]
+    
+    if any(keyword in combined for keyword in project_keywords):
+        return "🛠 پروژه‌ای / فری‌لنس"
+    return "🏢 استخدامی / رسمی"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # Telegram
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -200,9 +217,9 @@ def send_telegram(text: str, reply_markup: str = None, thread_id: int = None) ->
 def generate_hashtags(job_title: str) -> str:
     """تولید خودکار هشتگ بر اساس کلمات کلیدی موجود در عنوان شغل"""
     title_lower = job_title.lower()
-    tags = ["#استخدام", CHANNEL_USERNAME]
+    tags = ["#استخدام"]
     
-    if "ui" in title_lower or "ux" in title_lower or "design" in title_lower:
+    if "ui" in title_lower or "ux" in title_lower:
         tags.append("#UI_UX")
     if "wordpress" in title_lower or "وردپرس" in title_lower:
         tags.append("#WordPress")
@@ -361,7 +378,8 @@ def main():
                 "job_country": "US",
                 "job_publisher": "LinkedIn",
                 "job_salary_string": "$90,000 - $120,000/year",
-                "job_apply_link": "https://linkedin.com"
+                "job_apply_link": "https://linkedin.com",
+                "job_description": "We are looking for a full-time Senior UI/UX Designer."
             },
             {
                 "job_id": "mock_test_wp",
@@ -371,7 +389,8 @@ def main():
                 "job_country": "UK",
                 "job_publisher": "Indeed",
                 "job_salary_string": "$45 - $60/hour",
-                "job_apply_link": "https://indeed.com"
+                "job_apply_link": "https://indeed.com",
+                "job_description": "Freelance contract position for an hourly WordPress expert."
             }
         ]
     else:
@@ -454,12 +473,21 @@ def main():
             # ایجاد متن پایه آگهی
             base_msg = format_job(job)
             
+            # تشخیص نوع همکاری
+            job_type = get_job_type(job)
+            
             # تولید هشتگ‌های دسته بندی بر اساس عنوان
             job_title = job.get("job_title", "")
             hashtags = generate_hashtags(job_title)
             
-            # الصاق هشتگ‌ها به پیام
-            msg = f"{base_msg}\n\n📌 {hashtags}"
+            # ساخت متن نهایی با استایل درخواستی و خط مجزا برای کانال رسمی
+            msg = (
+                f"{base_msg}\n"
+                f"⚙️ نوع همکاری: {job_type}\n\n"
+                f"📌 {hashtags}\n"
+                f"➖➖➖➖➖➖➖➖\n"
+                f"📢 کانال رسمی: {CHANNEL_USERNAME}"
+            )
             
             # ساخت دکمه شیشه‌ای (Inline Keyboard)
             link = job.get("job_apply_link") or job.get("job_google_link") or ""
